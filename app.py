@@ -138,22 +138,40 @@ if 'user_profile' not in st.session_state:
 
 def load_data():
     """Load data from JSON files"""
-    if os.path.exists('data/profile.json'):
-        with open('data/profile.json', 'r') as f:
-            st.session_state.user_profile = json.load(f)
+    username = st.session_state.username
     
-    if os.path.exists('data/workouts.json'):
-        with open('data/workouts.json', 'r') as f:
+    # Load user-specific profile
+    profile_file = f'data/profile_{username}.json'
+    workouts_file = f'data/workouts_{username}.json'
+    
+    if os.path.exists(profile_file):
+        with open(profile_file, 'r') as f:
+            st.session_state.user_profile = json.load(f)
+    else:
+        # Default empty profile
+        st.session_state.user_profile = {
+            'name': '',
+            'age': 30,
+            'weight': 70.0,
+            'height': 170
+        }
+    
+    if os.path.exists(workouts_file):
+        with open(workouts_file, 'r') as f:
             st.session_state.workouts = json.load(f)
+    else:
+        st.session_state.workouts = []
 
 def save_data():
     """Save data to JSON files"""
+    username = st.session_state.username
     os.makedirs('data', exist_ok=True)
     
-    with open('data/profile.json', 'w') as f:
+    # Save user-specific profile
+    with open(f'data/profile_{username}.json', 'w') as f:
         json.dump(st.session_state.user_profile, f)
     
-    with open('data/workouts.json', 'w') as f:
+    with open(f'data/workouts_{username}.json', 'w') as f:
         json.dump(st.session_state.workouts, f)
 
 def calculate_vo2max(pace_min_km, heart_rate, workout_type='steady', incline=0, stroke_rate=0):
