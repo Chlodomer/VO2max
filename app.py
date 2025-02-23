@@ -185,9 +185,6 @@ def profile_page():
         save_data()
         st.success('Profile saved!')
     
-    def profile_page():
-    # ... rest of your profile code ...
-    
     st.markdown("</div>", unsafe_allow_html=True)
     
     # Add the treadmill image below the profile with adjusted width
