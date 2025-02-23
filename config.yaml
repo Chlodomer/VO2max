@@ -1,0 +1,10 @@
+credentials:
+  usernames:
+    admin:
+      email: your@email.com
+      name: Admin User
+      password: $2b$12$tRXn7JGqSvqzOB1xyqZJh.H8TUf.O5rJ.yLY2n6LRJoJ5yiFHXKFi  # This is "abc123" hashed
+cookie:
+  expiry_days: 30
+  key: random_signature_key_123
+  name: fitness_tracker_cookie
