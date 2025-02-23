@@ -25,6 +25,14 @@ def check_password():
         st.session_state.authentication_status = False
         st.session_state.username = None
         st.session_state.logout_clicked = False
+    
+    # Initialize users from file or create default
+    if 'users' not in st.session_state:
+        if os.path.exists('data/users.json'):
+            with open('data/users.json', 'r') as f:
+                st.session_state.users = json.load(f)
+        else:
+            st.session_state.users = {'admin': 'abc123'}  # Default admin account
         
     if st.session_state.authentication_status and not st.session_state.logout_clicked and st.session_state.username:
         # Show user icon and name in top right with logout button
@@ -67,10 +75,6 @@ def check_password():
                 st.rerun()
         return True
 
-    # Initialize users in session state if not exists
-    if 'users' not in st.session_state:
-        st.session_state.users = {'admin': 'abc123'}  # Default admin account
-
     # Create tabs for login and signup
     tab1, tab2 = st.tabs(["Login", "Sign Up"])
     
@@ -109,7 +113,13 @@ def check_password():
                     st.error("Password must be at least 6 characters long!")
                 else:
                     st.session_state.users[new_username] = new_password
-                    st.success("Account created successfully! Please log in.")
+                    # Save users to file
+                    os.makedirs('data', exist_ok=True)
+                    with open('data/users.json', 'w') as f:
+                        json.dump(st.session_state.users, f)
+                    st.success(f"✅ Account created successfully! Welcome, {new_username}!")
+                    st.balloons()
+                    # Auto-switch to login tab
                     st.rerun()
     
     return False
