@@ -30,9 +30,7 @@ def check_password():
         # Show user icon and name in top right with logout button
         col1, col2, col3 = st.columns([5, 0.7, 0.3])
         with col2:
-            # Get first letter safely
             user_initial = st.session_state.username[0].upper() if st.session_state.username else "?"
-            
             st.markdown(
                 f"""
                 <div style="
@@ -69,22 +67,50 @@ def check_password():
                 st.rerun()
         return True
 
-    # Create login form
-    with st.form("login_form"):
-        username = st.text_input("Username", key="username_input")
-        st.text_input("Password", type="password", key="password")
-        submitted = st.form_submit_button("Log In")
-        
-        if submitted:
-            if st.session_state["password"] == "abc123":
-                st.session_state.authentication_status = True
-                st.session_state.username = username  # Set username from form input
-                st.session_state.logout_clicked = False
-                st.rerun()
-                return True
-            else:
-                st.error("Incorrect password")
-                return False
+    # Initialize users in session state if not exists
+    if 'users' not in st.session_state:
+        st.session_state.users = {'admin': 'abc123'}  # Default admin account
+
+    # Create tabs for login and signup
+    tab1, tab2 = st.tabs(["Login", "Sign Up"])
+    
+    with tab1:
+        # Login form
+        with st.form("login_form"):
+            username = st.text_input("Username", key="username_input")
+            password = st.text_input("Password", type="password", key="password")
+            submitted = st.form_submit_button("Log In")
+            
+            if submitted:
+                if username in st.session_state.users and st.session_state.users[username] == password:
+                    st.session_state.authentication_status = True
+                    st.session_state.username = username
+                    st.session_state.logout_clicked = False
+                    st.rerun()
+                    return True
+                else:
+                    st.error("Invalid username or password")
+                    return False
+    
+    with tab2:
+        # Sign up form
+        with st.form("signup_form"):
+            new_username = st.text_input("Choose Username", key="new_username")
+            new_password = st.text_input("Choose Password", type="password", key="new_password")
+            confirm_password = st.text_input("Confirm Password", type="password", key="confirm_password")
+            signup_submitted = st.form_submit_button("Sign Up")
+            
+            if signup_submitted:
+                if new_username in st.session_state.users:
+                    st.error("Username already exists!")
+                elif new_password != confirm_password:
+                    st.error("Passwords don't match!")
+                elif len(new_password) < 6:
+                    st.error("Password must be at least 6 characters long!")
+                else:
+                    st.session_state.users[new_username] = new_password
+                    st.success("Account created successfully! Please log in.")
+                    st.rerun()
     
     return False
 
