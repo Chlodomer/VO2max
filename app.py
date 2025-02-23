@@ -4,6 +4,10 @@ import plotly.express as px
 from datetime import datetime
 import json
 import os
+import yaml
+import streamlit_authenticator as stauth
+from yaml.loader import SafeLoader
+import bcrypt
 
 # Page configuration
 st.set_page_config(
@@ -12,32 +16,70 @@ st.set_page_config(
     layout="wide"
 )
 
-def load_data():
-    """Load data from JSON files"""
-    if os.path.exists('data/profile.json'):
-        with open('data/profile.json', 'r') as f:
-            st.session_state.user_profile = json.load(f)
-    
-    if os.path.exists('data/workouts.json'):
-        with open('data/workouts.json', 'r') as f:
-            st.session_state.workouts = json.load(f)
+def save_config():
+    with open('config.yaml', 'w') as file:
+        yaml.dump(config, file, default_flow_style=False)
 
-def save_data():
-    """Save data to JSON files"""
-    os.makedirs('data', exist_ok=True)
-    
-    with open('data/profile.json', 'w') as f:
-        json.dump(st.session_state.user_profile, f)
-    
-    with open('data/workouts.json', 'w') as f:
-        json.dump(st.session_state.workouts, f)
+# Load config file
+with open('config.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
 
-# Initialize session state for data storage
-if 'workouts' not in st.session_state:
-    st.session_state.workouts = []
+# Create the authenticator
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days']
+)
 
-if 'user_profile' not in st.session_state:
-    st.session_state.user_profile = None
+# Add tabs for login and registration
+tab1, tab2 = st.tabs(["Login", "Sign Up"])
+
+with tab1:
+    name, authentication_status, username = authenticator.login('Login', 'main')
+
+with tab2:
+    if st.checkbox("Click to Sign Up"):
+        with st.form("signup_form"):
+            new_username = st.text_input("Username")
+            new_name = st.text_input("Full Name")
+            new_email = st.text_input("Email")
+            new_password = st.text_input("Password", type="password")
+            new_password_repeat = st.text_input("Repeat Password", type="password")
+            
+            if st.form_submit_button("Sign Up"):
+                if new_password == new_password_repeat:
+                    if new_username not in config['credentials']['usernames']:
+                        # Hash the password
+                        hashed_password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+                        
+                        # Add new user to config
+                        config['credentials']['usernames'][new_username] = {
+                            'email': new_email,
+                            'name': new_name,
+                            'password': hashed_password
+                        }
+                        
+                        # Save updated config
+                        save_config()
+                        
+                        st.success("Registration successful! Please log in.")
+                        st.experimental_rerun()
+                    else:
+                        st.error("Username already exists!")
+                else:
+                    st.error("Passwords do not match!")
+
+if authentication_status == False:
+    st.error('Username/password is incorrect')
+elif authentication_status == None:
+    st.warning('Please enter your username and password')
+elif authentication_status:
+    # Show the app
+    authenticator.logout('Logout', 'sidebar')
+    st.sidebar.write(f'Welcome *{name}*')
+    
+    # Rest of your existing app code goes here...
 
 def calculate_vo2max(pace_min_km, heart_rate, workout_type='steady', incline=0, stroke_rate=0):
     """
