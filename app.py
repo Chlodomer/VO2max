@@ -144,40 +144,50 @@ def calculate_vo2max(pace_min_km, heart_rate, workout_type='steady', incline=0, 
     return round(vo2max, 1)
 
 def profile_page():
-    st.header('👤 User Profile')
+    st.header('👤 Profile')
     
+    # Profile container with rounded corners
+    st.markdown("""
+        <div style="
+            background-color: #f0f2f6;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        ">
+    """, unsafe_allow_html=True)
+    
+    # Your existing profile functionality
     if st.session_state.user_profile is None:
-        with st.form('profile_form'):
-            col1, col2 = st.columns(2)
-            with col1:
-                age = st.number_input('Age', 18, 100)
-                height = st.number_input('Height (cm)', 100, 250)
-            with col2:
-                weight = st.number_input('Weight (kg)', 30, 200)
-                gender = st.selectbox('Gender', ['M', 'F'])
-            
-            if st.form_submit_button('Save Profile'):
-                st.session_state.user_profile = {
-                    'age': age,
-                    'height': height,
-                    'weight': weight,
-                    'gender': gender,
-                    'bmi': weight / ((height/100) ** 2)
-                }
-                save_data()
-                st.success('Profile saved!')
-    else:
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("Age", f"{st.session_state.user_profile['age']} years")
-            st.metric("Height", f"{st.session_state.user_profile['height']} cm")
-        with col2:
-            st.metric("Weight", f"{st.session_state.user_profile['weight']} kg")
-            st.metric("BMI", f"{st.session_state.user_profile['bmi']:.1f}")
+        st.session_state.user_profile = {}
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        name = st.text_input('Name', st.session_state.user_profile.get('name', ''))
+        age = st.number_input('Age', 0, 120, st.session_state.user_profile.get('age', 30))
         
-        if st.button('Edit Profile'):
-            st.session_state.user_profile = None
-            st.experimental_rerun()
+    with col2:
+        weight = st.number_input('Weight (kg)', 30.0, 200.0, st.session_state.user_profile.get('weight', 70.0))
+        height = st.number_input('Height (cm)', 100, 250, st.session_state.user_profile.get('height', 170))
+    
+    if st.button('Save Profile'):
+        st.session_state.user_profile = {
+            'name': name,
+            'age': age,
+            'weight': weight,
+            'height': height
+        }
+        save_data()
+        st.success('Profile saved!')
+    
+    # Close the styled container
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Add the treadmill image below the profile
+    st.image('assets/treadmill.png', 
+             caption='Track your fitness journey', 
+             use_column_width=True)
 
 def workout_page():
     st.header('💪 Add New Workout')
