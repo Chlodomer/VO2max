@@ -22,8 +22,9 @@ def check_password():
     
     if 'authentication_status' not in st.session_state:
         st.session_state.authentication_status = False
+        st.session_state.username = None
         
-    if st.session_state.authentication_status:
+    if st.session_state.authentication_status and st.session_state.username:
         # Show user icon and name in top right with logout button
         col1, col2, col3 = st.columns([5, 0.7, 0.3])
         with col2:
@@ -58,6 +59,7 @@ def check_password():
         with col3:
             if st.button("🚪", help="Logout"):
                 st.session_state.authentication_status = False
+                st.session_state.username = None
                 st.rerun()
         return True
 
