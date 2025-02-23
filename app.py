@@ -185,12 +185,17 @@ def profile_page():
         save_data()
         st.success('Profile saved!')
     
+    def profile_page():
+    # ... rest of your profile code ...
+    
     st.markdown("</div>", unsafe_allow_html=True)
     
-    # Add the treadmill image below the profile
-    st.image('assets/treadmill.png', 
-             caption='Track your fitness journey', 
-             use_column_width=True)
+    # Add the treadmill image below the profile with adjusted width
+    col1, col2, col3 = st.columns([1, 2, 1])  # Creates three columns
+    with col2:  # Use middle column for image
+        st.image('assets/treadmill.png', 
+                caption='Track your fitness journey', 
+                use_container_width=True)  # Fixed deprecation warning
 
 def workout_page():
     st.header('💪 Add New Workout')
