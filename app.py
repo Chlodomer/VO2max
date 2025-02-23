@@ -20,11 +20,13 @@ if 'username' not in st.session_state:
 def check_password():
     """Returns `True` if the user had the correct password."""
     
+    # Initialize session state variables if they don't exist
     if 'authentication_status' not in st.session_state:
         st.session_state.authentication_status = False
         st.session_state.username = None
+        st.session_state.logout_clicked = False
         
-    if st.session_state.authentication_status and st.session_state.username:
+    if st.session_state.authentication_status and not st.session_state.logout_clicked:
         # Show user icon and name in top right with logout button
         col1, col2, col3 = st.columns([5, 0.7, 0.3])
         with col2:
@@ -60,6 +62,7 @@ def check_password():
             if st.button("🚪", help="Logout"):
                 st.session_state.authentication_status = False
                 st.session_state.username = None
+                st.session_state.logout_clicked = True
                 st.rerun()
         return True
 
@@ -72,7 +75,8 @@ def check_password():
         if submitted:
             if st.session_state["password"] == "abc123":
                 st.session_state.authentication_status = True
-                st.rerun()  # This will clear the login form
+                st.session_state.logout_clicked = False
+                st.rerun()
                 return True
             else:
                 st.error("Incorrect password")
