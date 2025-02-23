@@ -25,6 +25,7 @@ def check_password():
         st.session_state.authentication_status = False
         st.session_state.username = None
         st.session_state.logout_clicked = False
+        st.session_state.current_tab = "Login"  # Add this line
     
     # Initialize users from file or create default
     if 'users' not in st.session_state:
@@ -76,9 +77,9 @@ def check_password():
         return True
 
     # Create tabs for login and signup
-    tab1, tab2 = st.tabs(["Login", "Sign Up"])
+    login_tab, signup_tab = st.tabs(["Login", "Sign Up"])
     
-    with tab1:
+    with login_tab:
         # Login form
         with st.form("login_form"):
             username = st.text_input("Username", key="username_input")
@@ -96,16 +97,19 @@ def check_password():
                     st.error("Invalid username or password")
                     return False
     
-    with tab2:
+    with signup_tab:
+        st.write("Create a new account")
         # Sign up form
         with st.form("signup_form"):
-            new_username = st.text_input("Choose Username", key="new_username")
-            new_password = st.text_input("Choose Password", type="password", key="new_password")
-            confirm_password = st.text_input("Confirm Password", type="password", key="confirm_password")
+            new_username = st.text_input("Choose Username")
+            new_password = st.text_input("Choose Password", type="password")
+            confirm_password = st.text_input("Confirm Password", type="password")
             signup_submitted = st.form_submit_button("Sign Up")
             
             if signup_submitted:
-                if new_username in st.session_state.users:
+                if not new_username:
+                    st.error("Please enter a username!")
+                elif new_username in st.session_state.users:
                     st.error("Username already exists!")
                 elif new_password != confirm_password:
                     st.error("Passwords don't match!")
@@ -119,8 +123,6 @@ def check_password():
                         json.dump(st.session_state.users, f)
                     st.success(f"✅ Account created successfully! Welcome, {new_username}!")
                     st.balloons()
-                    # Auto-switch to login tab
-                    st.rerun()
     
     return False
 
