@@ -157,7 +157,6 @@ def profile_page():
         ">
     """, unsafe_allow_html=True)
     
-    # Your existing profile functionality
     if st.session_state.user_profile is None:
         st.session_state.user_profile = {}
     
@@ -165,23 +164,27 @@ def profile_page():
     
     with col1:
         name = st.text_input('Name', st.session_state.user_profile.get('name', ''))
-        age = st.number_input('Age', 0, 120, st.session_state.user_profile.get('age', 30))
+        age = st.number_input('Age', 0, 120, st.session_state.user_profile.get('age', 30), step=1)
         
     with col2:
-        weight = st.number_input('Weight (kg)', 30.0, 200.0, st.session_state.user_profile.get('weight', 70.0))
-        height = st.number_input('Height (cm)', 100, 250, st.session_state.user_profile.get('height', 170))
+        # Convert all weight values to float
+        stored_weight = float(st.session_state.user_profile.get('weight', 70))
+        weight = st.number_input('Weight (kg)', 30.0, 200.0, stored_weight, step=0.1)
+        
+        # Convert all height values to int
+        stored_height = int(st.session_state.user_profile.get('height', 170))
+        height = st.number_input('Height (cm)', 100, 250, stored_height, step=1)
     
     if st.button('Save Profile'):
         st.session_state.user_profile = {
             'name': name,
             'age': age,
-            'weight': weight,
-            'height': height
+            'weight': float(weight),  # Ensure weight is stored as float
+            'height': int(height)     # Ensure height is stored as int
         }
         save_data()
         st.success('Profile saved!')
     
-    # Close the styled container
     st.markdown("</div>", unsafe_allow_html=True)
     
     # Add the treadmill image below the profile
