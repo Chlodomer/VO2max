@@ -7,7 +7,6 @@ import os
 import yaml
 import streamlit_authenticator as stauth
 from yaml.loader import SafeLoader
-import bcrypt
 
 # Page configuration
 st.set_page_config(
@@ -15,10 +14,6 @@ st.set_page_config(
     page_icon="🏃‍♂️",
     layout="wide"
 )
-
-def save_config():
-    with open('config.yaml', 'w') as file:
-        yaml.dump(config, file, default_flow_style=False)
 
 # Load config file
 with open('config.yaml') as file:
@@ -29,14 +24,12 @@ authenticator = stauth.Authenticate(
     config['credentials'],
     config['cookie']['name'],
     config['cookie']['key'],
-    config['cookie']['expiry_days']
+    config['cookie']['expiry_days'],
+    config['preauthorized']
 )
 
-# Add tabs for login and registration
-tab1, tab2 = st.tabs(["Login", "Sign Up"])
-
-with tab1:
-    name, authentication_status, username = authenticator.login('Login', 'main')
+# Add login widget
+name, authentication_status, username = authenticator.login('Login', 'main')
 
 with tab2:
     if st.checkbox("Click to Sign Up"):
