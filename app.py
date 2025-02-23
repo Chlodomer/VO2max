@@ -19,21 +19,28 @@ if 'username' not in st.session_state:
 
 def check_password():
     """Returns `True` if the user had the correct password."""
-    def password_entered():
-        if st.session_state["password"] == "abc123":
-            st.session_state.username = st.session_state["username"]
-            return True
-        else:
-            st.session_state.username = None
-            return False
-
-    if st.session_state.username:
+    
+    # Always show login form unless already authenticated
+    if 'authentication_status' not in st.session_state:
+        st.session_state.authentication_status = False
+        
+    if st.session_state.authentication_status:
         return True
 
-    st.text_input("Username", key="username")
-    st.text_input("Password", type="password", key="password")
-    if st.button("Log In"):
-        return password_entered()
+    # Create login form
+    with st.form("login_form"):
+        st.text_input("Username", key="username")
+        st.text_input("Password", type="password", key="password")
+        submitted = st.form_submit_button("Log In")
+        
+        if submitted:
+            if st.session_state["password"] == "abc123":
+                st.session_state.authentication_status = True
+                return True
+            else:
+                st.error("Incorrect password")
+                return False
+    
     return False
 
 if not check_password():
