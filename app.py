@@ -24,10 +24,41 @@ def check_password():
         st.session_state.authentication_status = False
         
     if st.session_state.authentication_status:
-        # Show user icon and name in top right
-        col1, col2 = st.columns([6, 1])
+        # Show user icon and name in top right with logout button
+        col1, col2, col3 = st.columns([5, 0.7, 0.3])
         with col2:
-            st.write(f"👤 {st.session_state.username}")
+            st.markdown(
+                f"""
+                <div style="
+                    background-color: #f0f2f6;
+                    padding: 8px 15px;
+                    border-radius: 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                ">
+                    <div style="
+                        background-color: #FF4B4B;
+                        color: white;
+                        width: 25px;
+                        height: 25px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: bold;
+                    ">
+                        {st.session_state.username[0].upper()}
+                    </div>
+                    <span>{st.session_state.username}</span>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        with col3:
+            if st.button("🚪", help="Logout"):
+                st.session_state.authentication_status = False
+                st.rerun()
         return True
 
     # Create login form
