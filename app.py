@@ -26,10 +26,13 @@ def check_password():
         st.session_state.username = None
         st.session_state.logout_clicked = False
         
-    if st.session_state.authentication_status and not st.session_state.logout_clicked:
+    if st.session_state.authentication_status and not st.session_state.logout_clicked and st.session_state.username:
         # Show user icon and name in top right with logout button
         col1, col2, col3 = st.columns([5, 0.7, 0.3])
         with col2:
+            # Get first letter safely
+            user_initial = st.session_state.username[0].upper() if st.session_state.username else "?"
+            
             st.markdown(
                 f"""
                 <div style="
@@ -51,7 +54,7 @@ def check_password():
                         justify-content: center;
                         font-weight: bold;
                     ">
-                        {st.session_state.username[0].upper()}
+                        {user_initial}
                     </div>
                     <span>{st.session_state.username}</span>
                 </div>
@@ -68,13 +71,14 @@ def check_password():
 
     # Create login form
     with st.form("login_form"):
-        st.text_input("Username", key="username")
+        username = st.text_input("Username", key="username_input")
         st.text_input("Password", type="password", key="password")
         submitted = st.form_submit_button("Log In")
         
         if submitted:
             if st.session_state["password"] == "abc123":
                 st.session_state.authentication_status = True
+                st.session_state.username = username  # Set username from form input
                 st.session_state.logout_clicked = False
                 st.rerun()
                 return True
